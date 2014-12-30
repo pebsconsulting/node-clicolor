@@ -1,0 +1,31 @@
+{
+  "name": "clicolor",
+  "version": "0.9.0",
+  "description": "simple functions for using pretty colors in your CLI app",
+  "keywords": [ "cli" ],
+  "author": "Robey Pointer <robeypointer@gmail.com>",
+  "homepage": "https://github.com/robey/node-clicolor",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/robey/node-clicolor.git"
+  },
+  "licenses": [
+    {
+      "type": "Apache License 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
+  ],
+  "dependencies": {
+    "antsy": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.7"
+  },
+  "main": "./lib/clicolor",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "prepublish": "./node_modules/.bin/coffee -o lib -c src"
+  }
+}
