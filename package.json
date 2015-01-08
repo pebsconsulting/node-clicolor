@@ -1,6 +1,6 @@
 {
   "name": "clicolor",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "description": "simple functions for using pretty colors in your CLI app",
   "keywords": [ "cli" ],
   "author": "Robey Pointer <robeypointer@gmail.com>",
@@ -26,6 +26,6 @@
     "lib"
   ],
   "scripts": {
-    "prepublish": "./node_modules/.bin/coffee -o lib -c src"
+    "prepublish": "coffee -o lib -c src"
   }
 }

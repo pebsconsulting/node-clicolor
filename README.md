@@ -7,6 +7,7 @@ Example:
 
 ```javascript
 var clicolor = require("clicolor");
+var cli = clicolor.cli();
 
 clicolor.display(clicolor.color("purple", "ATTENTION"), ": ", clicolor.color("green", "I am feeling green today."));
 ```
