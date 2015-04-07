@@ -1,11 +1,14 @@
 "use strict";
 
 const antsy = require("antsy");
+const magnitude = require("./magnitude");
+const status = require("./status");
 
 class CliColor {
   constructor() {
     this._useColor = process.stdout.isTTY;
     this._quiet = false;
+    this._updater = new status.StatusUpdater();
   }
 
   useColor(x) {
@@ -17,11 +20,13 @@ class CliColor {
   }
 
   display(...message) {
+    if (process.stdout.isTTY) process.stdout.write(this._updater.clear());
     const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
     process.stdout.write(text + "\n");
   }
 
   displayNotice(...message) {
+    if (process.stdout.isTTY) process.stdout.write(this._updater.clear());
     const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
     if (!this._quiet) process.stderr.write(text + "\n");
   }
@@ -40,6 +45,19 @@ class CliColor {
 
   color(colorName, ...spans) {
     return new Span(colorName, spans, this._useColor);
+  }
+
+  screenWidth() {
+    return (process && process.stdout.isTTY) ? process.stdout.columns : 80;
+  }
+
+  toMagnitude(number, base = 1000.0) {
+    return magnitude.magnitude(number, base);
+  }
+
+  status(message) {
+    if (!process.stdout.isTTY) return;
+    process.stdout.write((message && message != "") ? this._updater.update(message) : this._updater.clear());
   }
 }
 
@@ -69,7 +87,11 @@ class Span {
           break;
         default:
           const c = antsy.get_color(STYLES[this.color] != null ? STYLES[this.color] : this.color);
-          escOn = "\u001b[38;5;" + c + "m";
+          if (c < 8) {
+            escOn = "\u001b[3" + c + "m";
+          } else {
+            escOn = "\u001b[38;5;" + c + "m";
+          }
           escOff = "\u001b[39m";
       }
     }
