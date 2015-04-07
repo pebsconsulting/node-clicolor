@@ -19,13 +19,19 @@
     "antsy": "*"
   },
   "devDependencies": {
-    "coffee-script": "^1.7"
+    "babel": "*",
+    "mocha": "*",
+    "should": "*",
+    "source-map-support": "*"
   },
   "main": "./lib/clicolor",
   "files": [
     "lib"
   ],
   "scripts": {
-    "prepublish": "coffee -o lib -c src"
+    "clean": "rm -rf lib test/lib",
+    "distclean": "npm run clean && rm -rf node_modules",
+    "prepublish": "babel --source-maps --out-dir lib src && babel --source-maps --out-dir test/lib test/src",
+    "test": "mocha -R spec --colors test/lib"
   }
 }
