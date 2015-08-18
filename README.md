@@ -24,15 +24,15 @@ Turn on or off color support. By default, we assume that if stdout is a terminal
 
 Turn on/off quiet mode. In quiet mode, notices to stderr are squelched. The default is to be not quiet.
 
-- `display(message...)`
+- `display(...message)`
 
 Display the message to stdout, with a trailing linefeed added. If multiple strings are passed in, they are sent to `paint` first.
 
-- `displayNotice(message...)`
+- `displayNotice(...message)`
 
 Display the message to stderr, unless `quiet` mode is on. This is meant for tools that expect their standard output to be piped into another tool or file, when you'd like to post a verbose notice to the console to indicate progress or a status update.
 
-- `displayWarning(message...)`
+- `displayWarning(...message)`
 
 Same as `display`, but prefixed by an orange "WARNING: ".
 
@@ -40,7 +40,7 @@ Same as `display`, but prefixed by an orange "WARNING: ".
 
 Same as `display`, but prefixed by a red "ERROR: ".
 
-- `color(colorName, strings...)`
+- `color(colorName, ...strings)`
 
 Cat the strings together and color them with the given color name. The strings may be spans returned by another call to `color` or `paint` -- the terminal codes to set the color are repeated between each string.
 
@@ -52,7 +52,11 @@ Color names may be common American names like "green" or "brown", or hex codes l
   + `warning` - a bright warning orange, used by `displayWarning`
   + `error` - a bright error red, used by `displayError`
 
-- `paint(strings...)`
+- `backgroundColor(colorName, ...strings)`
+
+Do the same as `color`, but change the background color instead of the foreground color.
+
+- `paint(...strings)`
 
 Do exactly the same as `color`, but don't change the color.
 
