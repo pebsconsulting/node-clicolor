@@ -1,14 +1,22 @@
 "use strict";
 
-const antsy = require("antsy");
-const magnitude = require("./magnitude");
-const status = require("./status");
+import antsy from "antsy";
+import StatusUpdater from "./status";
+import { magnitude } from "./magnitude";
+
+
+export const STYLES = {
+  dim: "888",
+  timestamp: "0cc",
+  error: "c00",
+  warning: "f60"
+};
 
 class CliColor {
   constructor() {
     this._useColor = process.stdout.isTTY;
     this._quiet = false;
-    this._updater = new status.StatusUpdater();
+    this._updater = new StatusUpdater();
   }
 
   useColor(x) {
@@ -20,15 +28,15 @@ class CliColor {
   }
 
   display(...message) {
-    if (process.stdout.isTTY) process.stdout.write(this._updater.clear());
+    const clear = process.stdout.isTTY ? this._updater.clear() : "";
     const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
-    process.stdout.write(text + "\n");
+    process.stdout.write(clear + text + "\n");
   }
 
   displayNotice(...message) {
-    if (process.stdout.isTTY) process.stdout.write(this._updater.clear());
+    const clear = process.stdout.isTTY ? this._updater.clear() : "";
     const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
-    if (!this._quiet) process.stderr.write(text + "\n");
+    if (!this._quiet) process.stderr.write(clear + text + "\n");
   }
 
   displayError(...message) {
@@ -59,16 +67,15 @@ class CliColor {
     if (!process.stdout.isTTY) return;
     process.stdout.write((message && message != "") ? this._updater.update(message) : this._updater.clear());
   }
+
+  backgroundColor(colorName, ...spans) {
+    return new Span("bg:" + colorName, spans, this._useColor);
+  }
+
+  bgColor(colorName, ...spans) {
+    return this.backgroundColor(colorName, ...spans);
+  }
 }
-
-
-const STYLES = {
-  dim: "888",
-  timestamp: "0cc",
-  error: "c00",
-  warning: "f60"
-};
-
 
 class Span {
   constructor(color, spans, _useColor) {
@@ -86,21 +93,23 @@ class Span {
           escOff = "\u001b[24m";
           break;
         default:
-          const c = antsy.get_color(STYLES[this.color] != null ? STYLES[this.color] : this.color);
-          if (c < 8) {
-            escOn = "\u001b[3" + c + "m";
+          let colorName = this.color;
+          const match = this.color.match(/^bg:(.*)$/);
+          if (match) {
+            colorName = match[1];
+            const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
+            escOn = `\u001b[48;5;${c}m`;
+            escOff = `\u001b[49m`;
           } else {
-            escOn = "\u001b[38;5;" + c + "m";
+            const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
+            escOn = `\u001b[38;5;${c}m`;
+            escOff = `\u001b[39m`;
           }
-          escOff = "\u001b[39m";
+          break;
       }
     }
-    return escOn + this.spans.map((span) => span.toString()).join(escOn) + escOff;
+    return escOn + this.spans.map(span => span.toString()).join(escOn) + escOff;
   }
 }
 
-
-exports.cli = () => new CliColor();
-
-// allow the styles to be changed:
-exports.STYLES = STYLES;
+export const clicolor = () => new CliColor();
