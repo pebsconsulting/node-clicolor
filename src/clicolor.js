@@ -16,7 +16,7 @@ class CliColor {
   constructor() {
     this._useColor = process.stdout.isTTY;
     this._quiet = false;
-    this._updater = new StatusUpdater();
+    this._updater = new StatusUpdater({ width: this.screenWidth() });
   }
 
   useColor(x) {
