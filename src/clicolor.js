@@ -60,11 +60,11 @@ class CliColor {
   }
 
   toMagnitude(number, base = 1000.0) {
-    return magnitude.magnitude(number, base);
+    return magnitude(number, base);
   }
 
   status(message) {
-    if (!process.stdout.isTTY) return;
+    if (!process.stdout.isTTY || this._quiet) return;
     process.stdout.write((message && message != "") ? this._updater.update(message) : this._updater.clear());
   }
 
@@ -98,11 +98,11 @@ class Span {
           if (match) {
             colorName = match[1];
             const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
-            escOn = `\u001b[48;5;${c}m`;
+            escOn = (c < 8) ? `\u001b[4${c}m` : `\u001b[48;5;${c}m`;
             escOff = `\u001b[49m`;
           } else {
             const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
-            escOn = `\u001b[38;5;${c}m`;
+            escOn = (c < 8) ? `\u001b[3${c}m` : `\u001b[38;5;${c}m`;
             escOff = `\u001b[39m`;
           }
           break;

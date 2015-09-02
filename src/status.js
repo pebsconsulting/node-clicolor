@@ -1,10 +1,8 @@
 "use strict";
 
-const util = require("util");
-
 const SPACES = "                "; // 16
 
-class StatusUpdater {
+export default class StatusUpdater {
   constructor(options = {}) {
     this.frequency = options.frequency || 100;
     this.width = options.width || 80;
@@ -49,6 +47,3 @@ class StatusUpdater {
     return this._render("");
   }
 }
-
-
-exports.StatusUpdater = StatusUpdater;

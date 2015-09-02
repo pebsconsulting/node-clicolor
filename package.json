@@ -17,7 +17,7 @@
     "babel": "latest",
     "mocha": "*",
     "should": "*",
-    "source-map-support": "*"
+    "source-map-support": "latest"
   },
   "main": "./lib/clicolor",
   "files": [

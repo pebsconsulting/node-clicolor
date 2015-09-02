@@ -1,16 +1,15 @@
 "use strict";
 
-const clicolor = require("../../lib/clicolor");
-const magnitude = require("../../lib/magnitude");
-const should = require("should");
-const status = require("../../lib/status");
-const util = require("util");
+import { clicolor } from "../../lib/clicolor";
+import { roundToPrecision } from "../../lib/magnitude";
+import StatusUpdater from "../../lib/status";
 
-require("source-map-support").install();
+import "should";
+import "source-map-support/register";
 
 describe("clicolor", () => {
   it("spans", () => {
-    const cli = clicolor.cli();
+    const cli = clicolor();
     cli.useColor(true);
     cli.color("green", "kermit").toString().should.eql("\u001b[32mkermit\u001b[39m");
     cli.paint("it's so ", cli.color("error", "easy"), "!").toString().should.eql(
@@ -25,17 +24,17 @@ describe("clicolor", () => {
   });
 
   it("roundToPrecision", () => {
-    magnitude.roundToPrecision(123, 1).should.eql(100);
-    magnitude.roundToPrecision(123, 2).should.eql(120);
-    magnitude.roundToPrecision(123, 3).should.eql(123);
-    magnitude.roundToPrecision(123, 1, "ceil").should.eql(200);
-    magnitude.roundToPrecision(123, 2, "ceil").should.eql(130);
-    magnitude.roundToPrecision(123, 3, "ceil").should.eql(123);
-    magnitude.roundToPrecision(0, 3).should.eql(0);
+    roundToPrecision(123, 1).should.eql(100);
+    roundToPrecision(123, 2).should.eql(120);
+    roundToPrecision(123, 3).should.eql(123);
+    roundToPrecision(123, 1, "ceil").should.eql(200);
+    roundToPrecision(123, 2, "ceil").should.eql(130);
+    roundToPrecision(123, 3, "ceil").should.eql(123);
+    roundToPrecision(0, 3).should.eql(0);
   });
 
   it("toMagnitude", () => {
-    const cli = clicolor.cli();
+    const cli = clicolor();
     cli.toMagnitude(0).should.eql("0");
     cli.toMagnitude(1).should.eql("1");
     cli.toMagnitude(109).should.eql("109");
@@ -64,7 +63,7 @@ describe("clicolor", () => {
   });
 
   it("status line", () => {
-    const s = new status.StatusUpdater({ width: 16, frequency: 100 });
+    const s = new StatusUpdater({ width: 16, frequency: 100 });
     s.update("porky").should.eql("\r               \rporky");
     s.update("porky").should.eql("");
     s.update("wut?").should.eql("");
