@@ -84,6 +84,29 @@ class CliColor {
     }
     return span;
   }
+
+  padRight(count, ...spans) {
+    const span = new Span(null, spans, this._useColor);
+    const len = span.length;
+    if (count > len) {
+      span.spans.push(spaces(count - len));
+    }
+    return span;
+  }
+
+  format(formatters, ...spans) {
+    if (!Array.isArray(formatters)) formatters = [ formatters ];
+    const formattedSpans = formatters.map((formatter, i) => {
+      let span = spans[i];
+      const backgroundColor = formatter.bgColor || formatter.backgroundColor;
+      if (backgroundColor) span = this.backgroundColor(backgroundColor, span);
+      if (formatter.color) span = this.color(formatter.color, span);
+      if (formatter.padLeft) span = this.padLeft(formatter.padLeft, span);
+      if (formatter.padRight) span = this.padRight(formatter.padRight, span);
+      return span;
+    });
+    return new Span(null, formattedSpans, this._useColor);
+  }
 }
 
 const TEN_SPACES = "          ";

@@ -82,4 +82,24 @@ describe("clicolor", () => {
       "         \u001b[38;5;9mhello\u001b[39mcopter"
     );
   });
+
+  it("padRight", () => {
+    const cli = clicolor();
+    cli.padRight(5, "hi").toString().should.eql("hi   ");
+    cli.padRight(10, "hi", "there").toString().should.eql("hithere   ");
+    cli.padRight(20, "hi", "there").toString().should.eql("hithere             ");
+    cli.padRight(20, cli.color("red", "hello"), "copter").toString().should.eql(
+      "\u001b[38;5;9mhello\u001b[39mcopter         "
+    );
+  });
+
+  it("format", () => {
+    const cli = clicolor();
+    cli.format({ color: "blue" }, "green").toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
+    cli.format({ bgColor: "red", padLeft: 10 }, "green").toString().should.eql("     \u001b[48;5;9mgreen\u001b[49m");
+    cli.format([
+      { color: "brown", padRight: 10 },
+      { color: "orange" }
+    ], "wut?", "ok").toString().should.eql("\u001b[38;5;124mwut?\u001b[39m      \u001b[38;5;214mok\u001b[39m");
+  });
 });
