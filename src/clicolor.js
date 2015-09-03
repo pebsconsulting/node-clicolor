@@ -75,6 +75,20 @@ class CliColor {
   bgColor(colorName, ...spans) {
     return this.backgroundColor(colorName, ...spans);
   }
+
+  padLeft(count, ...spans) {
+    const span = new Span(null, spans, this._useColor);
+    const len = span.length;
+    if (count > len) {
+      span.spans.unshift(spaces(count - len));
+    }
+    return span;
+  }
+}
+
+const TEN_SPACES = "          ";
+function spaces(n) {
+  return (n <= 10) ? TEN_SPACES.slice(0, n) : TEN_SPACES + spaces(n - 10);
 }
 
 class Span {
@@ -82,6 +96,10 @@ class Span {
     this.color = color;
     this.spans = spans;
     this._useColor = _useColor;
+  }
+
+  get length() {
+    return this.spans.map(s => s.length).reduce((a, b) => a + b);
   }
 
   toString() {

@@ -72,4 +72,14 @@ describe("clicolor", () => {
     s.clear().should.eql("\r               \r");
     s.clear().should.eql("");
   });
+
+  it("padLeft", () => {
+    const cli = clicolor();
+    cli.padLeft(5, "hi").toString().should.eql("   hi");
+    cli.padLeft(10, "hi", "there").toString().should.eql("   hithere");
+    cli.padLeft(20, "hi", "there").toString().should.eql("             hithere");
+    cli.padLeft(20, cli.color("red", "hello"), "copter").toString().should.eql(
+      "         \u001b[38;5;9mhello\u001b[39mcopter"
+    );
+  });
 });
