@@ -36,7 +36,7 @@ class CliColor {
   displayVerbose(...message) {
     const clear = process.stdout.isTTY ? this._updater.clear() : "";
     const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
-    if (!this._quiet) process.stderr.write(clear + text + "\n");
+    if (!this._quiet) process.stdout.write(clear + text + "\n");
   }
 
   displayError(...message) {
