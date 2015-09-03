@@ -95,11 +95,27 @@ describe("clicolor", () => {
 
   it("format", () => {
     const cli = clicolor();
-    cli.format({ color: "blue" }, "green").toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
-    cli.format({ bgColor: "red", padLeft: 10 }, "green").toString().should.eql("     \u001b[48;5;9mgreen\u001b[49m");
+    cli.format({ color: "blue", content: "green" }).toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
+    cli.format({ bgColor: "red", padLeft: 10, content: "green" }).toString().should.eql(
+      "     \u001b[48;5;9mgreen\u001b[49m"
+    );
     cli.format([
-      { color: "brown", padRight: 10 },
-      { color: "orange" }
-    ], "wut?", "ok").toString().should.eql("\u001b[38;5;124mwut?\u001b[39m      \u001b[38;5;214mok\u001b[39m");
+      { color: "brown", padRight: 10, content: "wut?" },
+      { color: "orange", content: "ok" }
+    ]).toString().should.eql("\u001b[38;5;124mwut?\u001b[39m      \u001b[38;5;214mok\u001b[39m");
+  });
+
+  it("implicit format", () => {
+    const cli = clicolor();
+    cli.paint({
+      color: "#005",
+      content: [
+        {
+          backgroundColor: "#700",
+          content: "what"
+        },
+        "?!"
+      ]
+    }).toString().should.eql("\u001b[38;5;17m\u001b[41mwhat\u001b[49m\u001b[38;5;17m?!\u001b[39m");
   });
 });

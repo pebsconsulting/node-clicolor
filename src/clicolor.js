@@ -29,7 +29,7 @@ class CliColor {
 
   display(...message) {
     const clear = process.stdout.isTTY ? this._updater.clear() : "";
-    const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
+    const text = this.paint(...message).toString();
     process.stdout.write(clear + text + "\n");
   }
 
@@ -48,7 +48,7 @@ class CliColor {
   }
 
   paint(...spans) {
-    return new Span(null, spans, this._useColor);
+    return this.build(...this.implicit(spans));
   }
 
   color(colorName, ...spans) {
@@ -94,18 +94,30 @@ class CliColor {
     return span;
   }
 
-  format(formatters, ...spans) {
-    if (!Array.isArray(formatters)) formatters = [ formatters ];
-    const formattedSpans = formatters.map((formatter, i) => {
-      let span = spans[i];
-      const backgroundColor = formatter.bgColor || formatter.backgroundColor;
-      if (backgroundColor) span = this.backgroundColor(backgroundColor, span);
-      if (formatter.color) span = this.color(formatter.color, span);
-      if (formatter.padLeft) span = this.padLeft(formatter.padLeft, span);
-      if (formatter.padRight) span = this.padRight(formatter.padRight, span);
+  format(formatter) {
+    if (Array.isArray(formatter)) formatter = { content: formatter };
+    let spans = this.implicit(formatter.content);
+
+    const backgroundColor = formatter.bgColor || formatter.backgroundColor;
+    if (backgroundColor) spans = [ this.backgroundColor(backgroundColor, ...spans) ];
+    if (formatter.color) spans = [ this.color(formatter.color, ...spans) ];
+    if (formatter.padLeft) spans = [ this.padLeft(formatter.padLeft, ...spans) ];
+    if (formatter.padRight) spans = [ this.padRight(formatter.padRight, ...spans) ];
+    return this.build(...spans);
+  }
+
+  implicit(spans) {
+    if (!Array.isArray(spans)) spans = [ spans ];
+    return spans.map(span => {
+      if (span === undefined) return "";
+      if (typeof span == "object" && !(span instanceof Span)) return this.format(span);
+      if (typeof span != "object") return span.toString();
       return span;
     });
-    return new Span(null, formattedSpans, this._useColor);
+  }
+
+  build(...spans) {
+    return spans.length == 1 ? spans[0] : new Span(null, spans, this._useColor);
   }
 }
 
