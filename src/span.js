@@ -13,7 +13,10 @@ export default class Span {
   constructor(options, ...spans) {
     // do at least one level of unpacking, if possible.
     if (spans.length == 1 && (spans[0] instanceof Span)) {
-      for (let k in spans[0].options) if (options[k] == null) options[k] = spans[0].options[k];
+      const rv = {};
+      for (let k in spans[0].options) rv[k] = spans[0].options[k];
+      for (let k in options) rv[k] = options[k];
+      options = rv;
       spans = spans[0].spans;
     }
     this.options = options;
