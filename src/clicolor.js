@@ -119,10 +119,35 @@ class Span {
     this.color = color;
     this.spans = spans;
     this._useColor = _useColor;
+    this.length = this.spans.map(s => s.length).reduce((a, b) => a + b);
   }
 
-  get length() {
-    return this.spans.map(s => s.length).reduce((a, b) => a + b);
+  // walk the spans, building up a new set that covers the desired slice, not counting ansi codes.
+  slice(start, end) {
+    if (end == null) end = this.length;
+    if (start == null) start = 0;
+    if (end < 0) end += this.length;
+    if (start < 0) start += this.length;
+    if (end < start) throw new Error("No shenanigans");
+
+    const rv = [];
+    let i = 0;
+    this.spans.forEach(span => {
+      // if the whole span is before/after the slice, skip.
+      if (i < end && i + span.length >= start) {
+        // but if it's wholly contained, move on.
+        if (i >= start && i + span.length < end) {
+          rv.push(span);
+        } else {
+          rv.push(span.slice(
+            Math.max(start - i, 0),
+            Math.min(end - i, span.length)
+          ));
+        }
+      }
+      i += span.length;
+    });
+    return new Span(this.color, rv, this._useColor);
   }
 
   toString() {
