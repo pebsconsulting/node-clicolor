@@ -27,14 +27,14 @@ describe("Span", () => {
       new Span({ color: "blue" }, "uvwxy")
     );
     const rendered = [
-      [ "\u001b[38;5;9m", "abcde", "\u001b[39m" ],
-      [ "\u001b[38;5;214m", "fghij", "\u001b[39m" ],
-      [ "\u001b[38;5;11m", "klmno", "\u001b[39m" ],
-      [ "\u001b[32m", "pqrst", "\u001b[39m" ],
-      [ "\u001b[38;5;12m", "uvwxy", "\u001b[39m" ]
+      [ "\u001b[38;5;9m", "abcde" ],
+      [ "\u001b[38;5;214m", "fghij" ],
+      [ "\u001b[38;5;11m", "klmno" ],
+      [ "\u001b[32m", "pqrst" ],
+      [ "\u001b[38;5;12m", "uvwxy" ]
     ];
     function patch(...segments) {
-      return segments.map(s => rendered[s[0]][0] + rendered[s[0]][1].slice(s[1], s[2]) + rendered[s[0]][2]).join("");
+      return segments.map(s => rendered[s[0]][0] + rendered[s[0]][1].slice(s[1], s[2])).join("") + "\u001b[39m";
     }
 
     mess.slice().toString().should.eql(mess.toString());

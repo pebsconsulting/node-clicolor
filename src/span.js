@@ -13,10 +13,7 @@ export default class Span {
   constructor(options, ...spans) {
     // do at least one level of unpacking, if possible.
     if (spans.length == 1 && (spans[0] instanceof Span)) {
-      const rv = {};
-      for (let k in spans[0].options) rv[k] = spans[0].options[k];
-      for (let k in options) rv[k] = options[k];
-      options = rv;
+      options = merge(spans[0].options, options);
       spans = spans[0].spans;
     }
     this.options = options;
@@ -52,25 +49,71 @@ export default class Span {
     return new Span(this.options, ...rv);
   }
 
-  toString(options = {}) {
-    const plaintext = this.options.plaintext || options.plaintext;
-    if (plaintext) return this.spans.map(span => span.toString({ plaintext })).join("");
-
-    let escOn = "", escOff = "";
-    if (this.options.backgroundColor) {
-      const c = antsy.get_color(this.options.backgroundColor);
-      escOn += (c < 8) ? `\u001b[4${c}m` : `\u001b[48;5;${c}m`;
-      escOff += `\u001b[49m`;
-    }
-    if (this.options.color) {
-      const c = antsy.get_color(this.options.color);
-      escOn += (c < 8) ? `\u001b[3${c}m` : `\u001b[38;5;${c}m`;
-      escOff += `\u001b[39m`;
-    }
-    if (this.options.underline) {
-      escOn += "\u001b[4m";
-      escOff += "\u001b[24m";
-    }
-    return escOn + this.spans.map(span => span.toString()).join(escOn) + escOff;
+  /*
+   * - active: styles that have actually had codes emitted for them
+   * - currentPen: currently-active styles, even if no codes have been emitted yet
+   */
+  render(buffer = [], active = {}, currentPen = {}) {
+    const pen = merge(currentPen, this.options);
+    this.spans.forEach(span => {
+      if (span instanceof Span) {
+        span.render(buffer, active, pen);
+      } else {
+        const s = span.toString();
+        if (s.length > 0) {
+          buffer.push(renderPen(active, pen));
+          buffer.push(s);
+        }
+      }
+    });
   }
+
+  toString(options = {}) {
+    const buffer = [], active = {};
+    this.render(buffer, active, options);
+    buffer.push(renderPen(active, {}));
+    return buffer.join("");
+  }
+}
+
+function renderPen(active, pen) {
+  if (pen.plaintext) return "";
+
+  let out = "";
+
+  if (active.backgroundColor != pen.backgroundColor) {
+    if (!pen.backgroundColor) {
+      out += `\u001b[49m`;
+    } else {
+      const c = antsy.get_color(pen.backgroundColor);
+      out += (c < 8) ? `\u001b[4${c}m` : `\u001b[48;5;${c}m`;
+    }
+    active.backgroundColor = pen.backgroundColor;
+  }
+
+  if (active.color != pen.color) {
+    if (!pen.color) {
+      out += `\u001b[39m`;
+    } else {
+      const c = antsy.get_color(pen.color);
+      out += (c < 8) ? `\u001b[3${c}m` : `\u001b[38;5;${c}m`;
+    }
+    active.color = pen.color;
+  }
+
+  if (active.underline != pen.underline) {
+    out += pen.underline ? "\u001b[4m" : "\u001b[24m";
+    active.underline = pen.underline;
+  }
+
+  return out;
+}
+
+// treat the objects as immutable, and generate a new object with them merged, in order.
+function merge(...objects) {
+  const rv = {};
+  objects.forEach(obj => {
+    for (let k in obj) rv[k] = obj[k];
+  });
+  return rv;
 }
