@@ -1,64 +1,134 @@
 
 # clicolor
 
-Display pretty colored output in your CLI tool
+Display pretty colored text and single-line status updates in your CLI tool.
 
 Example:
 
 ```javascript
-var clicolor = require("clicolor");
-var cli = clicolor.cli();
+import clicolor from "clicolor";
+const cli = clicolor();
+// or: var cli = require("clicolor")();
 
-clicolor.display(clicolor.color("purple", "ATTENTION"), ": ", clicolor.color("green", "I am feeling green today."));
+cli.display(cli.color("purple", "ATTENTION"), ": ", cli.color("green", "I am feeling green today."));
+
+cli.status("Building space station ", cli.format({ color: "#4d4" }, "(24%)"), " ...");
 ```
 
-## API
 
-All of the `display*` functions take either a string or a thing with a `toString()` method on it. Conveniently, the colored spans returned by `paint`, `color`, and `underline` all have such a method.
+# API
+
+## Setup
+
+A `clicolor` object tracks quiet mode, whether we're using color codes, and the state of any single-line status display.
+
+- `clicolor(options)`: options are:
+  - `width`: Screen width. Defaults to the current terminal width, if possible, or 80 otherwise.
+  - `frequency`: Minimum delay (in milliseconds) between updates to a single-line status, to avoid flooding a terminal. Default is 100.
+  - `useColor`: True or false: Should we emit color codes? If false, only plain text is emitted. By default, clicolor will use "true" if it detects a TTY, or "false" if not.
+  - `quiet`: True or false: If false, "verbose" and single-line status updates will be displayed. If true, they will be squelched.
+  - `styles`: Map of additional color names to use when resolving colors (described below).
+
+These methods can be used to configure modes after constructing the object:
 
 - `useColor(boolean)`
-
-Turn on or off color support. By default, we assume that if stdout is a terminal, we should use colors. If it isn't, we shouldn't. You can hook this up to a `--color`/`--no-color` command-line option to let people override this guess.
-
 - `quiet(boolean)`
 
-Turn on/off quiet mode. In quiet mode, notices to stderr are squelched. The default is to be not quiet.
+## Color spans
 
-- `display(...message)`
+Clicolor uses "span" objects internally to represent text with embedded formatting. Each method will accept either strings, span objects, or a mix. You don't need to use span objects directly; you can combine them and then pass them to a display method without ever looking inside. If you want to render one immediately, call `toString()` on it.
 
-Display the message to stdout, with a trailing linefeed added. If multiple strings are passed in, they are sent to `paint` first.
+Color names may be common American names like "green" or "brown", or hex codes like "fff" or "3a3acc". (Check out the [antsy](https://www.npmjs.com/package/antsy) module for the full list.) They may also be one of these special names, defined in the default `styles` object:
 
-- `displayNotice(...message)`
-
-Display the message to stderr, unless `quiet` mode is on. This is meant for tools that expect their standard output to be piped into another tool or file, when you'd like to post a verbose notice to the console to indicate progress or a status update.
-
-- `displayWarning(...message)`
-
-Same as `display`, but prefixed by an orange "WARNING: ".
-
-- `displayError(message)`
-
-Same as `display`, but prefixed by a red "ERROR: ".
-
-- `color(colorName, ...strings)`
-
-Cat the strings together and color them with the given color name. The strings may be spans returned by another call to `color` or `paint` -- the terminal codes to set the color are repeated between each string.
-
-Color names may be common American names like "green" or "brown", or hex codes like "fff" or "3a3acc". (Check out the "antsy" module for the full list.) They may also be one of these special names:
-
-  + `underline` - underline the text instead of changing color
   + `dim` - a dimmer but still readable white
   + `timestamp` - a lovely shade of teal, suitable for timestamps
   + `warning` - a bright warning orange, used by `displayWarning`
   + `error` - a bright error red, used by `displayError`
 
-- `backgroundColor(colorName, ...strings)`
+You may add or override styles by passing them in a `styles` object in the constructor. For example, to define the color "frog" as a deep green:
 
-Do the same as `color`, but change the background color instead of the foreground color.
+```es6
+const cli = clicolor({ styles: { frog: "#3f3" } });
+```
 
-- `paint(...strings)`
+Each of these methods takes one or more strings (or spans), for convenience, and applies an effect to the whole set of strings/spans combined. For example,
 
-Do exactly the same as `color`, but don't change the color.
+```es6
+cli.color("green", "this is ", "all green.");
+```
+
+makes the whole string ("this is all green") green.
+
+- `color(colorName, ...spans)`: Set the foreground color to the named color or style.
+
+- `backgroundColor(colorName, ...spans)`: Set the background color to the named color or style.
+
+- `underline(...spans)`: Underline this combined string/span.
+
+- `padLeft(length, ...spans)`: Pad the combined string/span with spaces on the left, until it reaches the desired length.
+
+- `padRight(length, ...spans)`: Pad the combined string/span with spaces on the right, until it reaches the desired length.
+
+- `paint(...spans)`: Combine multiple strings/spans into one.
+
+## Format
+
+If you have a preset format that you'd like to use to fill in colors or padding, `format` is the method for you. It takes an array of format objects, and a variable number of strings/spans, and applies them in order.
+
+- `format(formatters, ...spans)`
+
+For example,
+
+```es6
+const myFormat = [
+  { color: "cyan" },
+  { color: "blue", padLeft: 4 },
+  { color: "cyan" },
+  { color: "blue", padLeft: 4 },
+  { color: "cyan" },
+];
+cli.display(cli.format(myFormat, "Downloading launch codes (", soFar, " of ", total, ")"));
+```
+
+would display something like
+
+```
+Downloading launch codes (  23 of  739)
+```
+
+with the "23" and "739" in blue, and the rest in cyan.
+
+Valid fields in a format object are:
+
+- `color`: foreground color or style
+- `backgroundColor`: background color or style
+- `underline`: true/false to underline this span
+- `padLeft`: fill on the left with spaces to the desired length
+- `padRight`: fill on the right with spaces to the desired length
+
+## Display
+
+Several methods exist to display a formatted span (or ordinary string) to the terminal. If color codes have been turned off, the formatting will be ignored. If a single-line status is currently active, it will be cleared first.
+
+- `display(...spans)` - Write the formatted text to stdout, followed by a linefeed.
+
+- `displayVerbose(...spans)` - Write the formatted text to stdout, followed by a linefeed, but only if quiet mode is off.
+
+- `displayWarning(...spans)` - Write the formatted text to stdout, followed by a linefeed, using the "warning" color style.
+
+- `displayError(...spans)` - Write the formatted text to stdout, followed by a linefeed, using the "error" color style.
+
+## Status
+
+A single-line status update can be used to display progress in interactive applications. A status update is just text (possibly with color codes) that's displayed without a linefeed. Periodically, the text is updated by sending a CR, a line full of spaces, another CR, and the new text. This makes it update in place without moving to a new line. The updates are rate-limited (to 10 per second by default, or 100ms). If the text is longer than the screen width, it's truncated.
+
+- `status(...spans)` - Update the status display, if connected to a TTY and not in quiet mode. To clear the status line and return to normal, call `status()` with no parameters.
+
+## Helpers
+
+- `screenWidth()` - Return our current guess about the screen width.
+
+- `toMagnitude(number, base = 1000.0)` - Convert a number like 1000 into "1K", or a number like 1123 into "1.1K". Numbers are rounded to two digits of precision. By default, it uses SI units, suitable for meters and liters. To use computer units suitable for bytes, pass 1024 to `base`.
 
 
 # License
