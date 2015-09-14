@@ -17,7 +17,7 @@ export default class Span {
       spans = spans[0].spans;
     }
     this.options = options;
-    this.spans = spans;
+    this.spans = spans.map(s => (s instanceof Span) ? s : s.toString());
     this.length = this.spans.map(s => s.length).reduce((a, b) => a + b);
   }
 

@@ -1,23 +1,31 @@
 "use strict";
 
-import antsy from "antsy";
 import Span from "./span";
 import StatusUpdater from "./status";
 import { magnitude } from "./magnitude";
 
 
-export const STYLES = {
+const DEFAULT_STYLES = {
   dim: "888",
   timestamp: "0cc",
-  error: "c00",
-  warning: "f60"
+  warning: "f60",
+  error: "c00"
 };
 
 class CliColor {
-  constructor() {
+  constructor(options = {}) {
     this._plaintext = !process.stdout.isTTY;
     this._quiet = false;
-    this._updater = new StatusUpdater({ width: this.screenWidth() });
+    this._updater = new StatusUpdater({
+      width: options.width || this.screenWidth(),
+      frequency: options.frequency
+    });
+    if (options.useColor != null) this.useColor(options.useColor);
+    if (options.quiet != null) this.quiet(options.quiet);
+
+    this.styles = {};
+    for (let k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
+    for (let k in (options.styles || {})) this.styles[k] = options.styles[k];
   }
 
   useColor(x) {
@@ -41,11 +49,11 @@ class CliColor {
   }
 
   displayError(...message) {
-    this.display(this.color(STYLES.error, "ERROR"), ": ", ...message);
+    this.display(this.color(this.styles.error, "ERROR"), ": ", ...message);
   }
 
   displayWarning(...message) {
-    this.display(this.color(STYLES.warning, "WARNING"), ": ", ...message);
+    this.display(this.color(this.styles.warning, "WARNING"), ": ", ...message);
   }
 
   _span(options, ...spans) {
@@ -58,11 +66,17 @@ class CliColor {
   }
 
   color(colorName, ...spans) {
+    if (this.styles[colorName]) colorName = this.styles[colorName];
     return this._span({ color: colorName }, ...spans);
   }
 
   backgroundColor(colorName, ...spans) {
+    if (this.styles[colorName]) colorName = this.styles[colorName];
     return this._span({ backgroundColor: colorName }, ...spans);
+  }
+
+  underline(...spans) {
+    return this._span({ underline: true }, ...spans);
   }
 
   screenWidth() {
@@ -73,23 +87,27 @@ class CliColor {
     return magnitude(number, base);
   }
 
-  status(message) {
+  status(...message) {
     if (!process.stdout.isTTY || this._quiet) return;
-    process.stdout.write((message && message != "") ? this._updater.update(message) : this._updater.clear());
+    if (message.length == 0) {
+      this._updater.clear();
+      return;
+    }
+    process.stdout.write(this._updater.update(this.paint(...message)));
   }
 
-  padLeft(count, ...spans) {
+  padLeft(length, ...spans) {
     const span = this._span({}, ...spans);
-    if (count > span.length) {
-      return this._span({}, spaces(count - span.length), ...spans);
+    if (length > span.length) {
+      return this._span({}, spaces(length - span.length), ...spans);
     }
     return span;
   }
 
-  padRight(count, ...spans) {
+  padRight(length, ...spans) {
     const span = this._span({}, ...spans);
-    if (count > span.length) {
-      return this._span({}, ...spans, spaces(count - span.length));
+    if (length > span.length) {
+      return this._span({}, ...spans, spaces(length - span.length));
     }
     return span;
   }
@@ -98,13 +116,10 @@ class CliColor {
     if (!Array.isArray(formatters)) formatters = [ formatters ];
     const formattedSpans = formatters.map((formatter, i) => {
       let span = spans[i];
-      const backgroundColor = formatter.bgColor || formatter.backgroundColor;
-      if (formatter.backgroundColor || formatter.color) {
-        span = this._span({
-          color: formatter.color,
-          backgroundColor: formatter.backgroundColor
-        }, span);
-      }
+      if (Array.isArray(span)) span = this.paint(...span);
+      if (formatter.color) span = this.color(formatter.color, span);
+      if (formatter.backgroundColor) span = this.backgroundColor(formatter.backgroundColor, span);
+      if (formatter.underline) span = this.underline(span);
       if (formatter.padLeft) span = this.padLeft(formatter.padLeft, span);
       if (formatter.padRight) span = this.padRight(formatter.padRight, span);
       return span;
@@ -118,4 +133,5 @@ function spaces(n) {
   return (n <= 10) ? TEN_SPACES.slice(0, n) : TEN_SPACES + spaces(n - 10);
 }
 
-export const clicolor = () => new CliColor();
+const clicolor = options => new CliColor(options);
+export default clicolor;
