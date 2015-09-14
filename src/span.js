@@ -17,8 +17,8 @@ export default class Span {
       spans = spans[0].spans;
     }
     this.options = options;
-    this.spans = spans.map(s => (s instanceof Span) ? s : s.toString());
-    this.length = this.spans.map(s => s.length).reduce((a, b) => a + b);
+    this.spans = spans.filter(s => s != null).map(s => (s instanceof Span) ? s : s.toString());
+    this.length = this.spans.length == 0 ? 0 : this.spans.map(s => s.length).reduce((a, b) => a + b);
   }
 
   // walk the spans, building up a new set that covers the desired slice, not counting ansi codes.
