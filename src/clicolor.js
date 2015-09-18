@@ -24,8 +24,8 @@ class CliColor {
     if (options.quiet != null) this.quiet(options.quiet);
 
     this.styles = {};
-    for (let k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
-    for (let k in (options.styles || {})) this.styles[k] = options.styles[k];
+    for (const k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
+    for (const k in (options.styles || {})) this.styles[k] = options.styles[k];
   }
 
   useColor(x) {
