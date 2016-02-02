@@ -28,6 +28,11 @@ class CliColor {
   }
 
   display(...message) {
+    let target = process.stdout;
+    if (message.length > 1 && typeof message[0] == "object" && message[0].write) {
+      target = message[0];
+      message = message.slice(1);
+    }
     const clear = process.stdout.isTTY ? this._updater.clear() : "";
     const text = this.paint(...message).toString();
     process.stdout.write(clear + text + "\n");
@@ -40,11 +45,11 @@ class CliColor {
   }
 
   displayError(...message) {
-    this.display(this.color(STYLES.error, "ERROR"), ": ", ...message);
+    this.display(process.stderr, this.color(STYLES.error, "ERROR"), ": ", ...message);
   }
 
   displayWarning(...message) {
-    this.display(this.color(STYLES.warning, "WARNING"), ": ", ...message);
+    this.display(process.stderr, this.color(STYLES.warning, "WARNING"), ": ", ...message);
   }
 
   paint(...spans) {
