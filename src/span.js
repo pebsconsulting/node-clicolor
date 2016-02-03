@@ -113,7 +113,7 @@ function renderPen(active, pen) {
 function merge(...objects) {
   const rv = {};
   objects.forEach(obj => {
-    for (let k in obj) rv[k] = obj[k];
+    for (const k in obj) rv[k] = obj[k];
   });
   return rv;
 }

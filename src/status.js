@@ -16,7 +16,7 @@ export default class StatusUpdater {
   }
 
   _render(message) {
-    let s = message.slice(0, this.width - 1).toString();
+    const s = message.slice(0, this.width - 1).toString();
     return "\r" + this.blankLine + "\r" + s;
   }
 

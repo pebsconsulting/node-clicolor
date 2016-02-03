@@ -24,8 +24,8 @@ class CliColor {
     if (options.quiet != null) this.quiet(options.quiet);
 
     this.styles = {};
-    for (let k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
-    for (let k in (options.styles || {})) this.styles[k] = options.styles[k];
+    for (const k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
+    for (const k in (options.styles || {})) this.styles[k] = options.styles[k];
   }
 
   useColor(x) {
@@ -44,7 +44,7 @@ class CliColor {
     }
     const clear = process.stdout.isTTY ? this._updater.clear() : "";
     const text = this.paint(...message).toString();
-    process.stdout.write(clear + text + "\n");
+    target.write(clear + text + "\n");
   }
 
   displayVerbose(...message) {

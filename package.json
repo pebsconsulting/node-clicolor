@@ -1,6 +1,6 @@
 {
   "name": "clicolor",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "simple functions for using pretty colors in your CLI app",
   "keywords": [
     "cli"
@@ -16,7 +16,8 @@
     "antsy": "*"
   },
   "devDependencies": {
-    "babel": "latest",
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015-node4": "^2.0.3",
     "eslint": "^1.4.1",
     "mocha": "*",
     "should": "*",
