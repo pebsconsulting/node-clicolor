@@ -1,26 +1,35 @@
 "use strict";
 
-import antsy from "antsy";
+import Span from "./span";
 import StatusUpdater from "./status";
 import { magnitude } from "./magnitude";
 
 
-export const STYLES = {
+const DEFAULT_STYLES = {
   dim: "888",
   timestamp: "0cc",
-  error: "c00",
-  warning: "f60"
+  warning: "f60",
+  error: "c00"
 };
 
 class CliColor {
-  constructor() {
-    this._useColor = process.stdout.isTTY;
+  constructor(options = {}) {
+    this._plaintext = !process.stdout.isTTY;
     this._quiet = false;
-    this._updater = new StatusUpdater({ width: this.screenWidth() });
+    this._updater = new StatusUpdater({
+      width: options.width || this.screenWidth(),
+      frequency: options.frequency
+    });
+    if (options.useColor != null) this.useColor(options.useColor);
+    if (options.quiet != null) this.quiet(options.quiet);
+
+    this.styles = {};
+    for (let k in DEFAULT_STYLES) this.styles[k] = DEFAULT_STYLES[k];
+    for (let k in (options.styles || {})) this.styles[k] = options.styles[k];
   }
 
   useColor(x) {
-    this._useColor = x;
+    this._plaintext = !x;
   }
 
   quiet(x) {
@@ -45,19 +54,34 @@ class CliColor {
   }
 
   displayError(...message) {
-    this.display(process.stderr, this.color(STYLES.error, "ERROR"), ": ", ...message);
+    this.display(process.stderr, this.color(this.styles.error, "ERROR"), ": ", ...message);
   }
 
   displayWarning(...message) {
-    this.display(process.stderr, this.color(STYLES.warning, "WARNING"), ": ", ...message);
+    this.display(process.stderr, this.color(this.styles.warning, "WARNING"), ": ", ...message);
+  }
+
+  _span(options, ...spans) {
+    options.plaintext = this._plaintext;
+    return new Span(options, ...spans);
   }
 
   paint(...spans) {
-    return this.build(...this.implicit(spans));
+    return this._span({}, ...spans);
   }
 
   color(colorName, ...spans) {
-    return new Span(colorName, spans, this._useColor);
+    if (this.styles[colorName]) colorName = this.styles[colorName];
+    return this._span({ color: colorName }, ...spans);
+  }
+
+  backgroundColor(colorName, ...spans) {
+    if (this.styles[colorName]) colorName = this.styles[colorName];
+    return this._span({ backgroundColor: colorName }, ...spans);
+  }
+
+  underline(...spans) {
+    return this._span({ underline: true }, ...spans);
   }
 
   screenWidth() {
@@ -68,61 +92,44 @@ class CliColor {
     return magnitude(number, base);
   }
 
-  status(message) {
+  status(...message) {
     if (!process.stdout.isTTY || this._quiet) return;
-    process.stdout.write((message && message != "") ? this._updater.update(message) : this._updater.clear());
+    if (message.length == 0) {
+      this._updater.clear();
+      return;
+    }
+    process.stdout.write(this._updater.update(this.paint(...message)));
   }
 
-  backgroundColor(colorName, ...spans) {
-    return new Span("bg:" + colorName, spans, this._useColor);
-  }
-
-  bgColor(colorName, ...spans) {
-    return this.backgroundColor(colorName, ...spans);
-  }
-
-  padLeft(count, ...spans) {
-    const span = new Span(null, spans, this._useColor);
-    const len = span.length;
-    if (count > len) {
-      span.spans.unshift(spaces(count - len));
+  padLeft(length, ...spans) {
+    const span = this._span({}, ...spans);
+    if (length > span.length) {
+      return this._span({}, spaces(length - span.length), ...spans);
     }
     return span;
   }
 
-  padRight(count, ...spans) {
-    const span = new Span(null, spans, this._useColor);
-    const len = span.length;
-    if (count > len) {
-      span.spans.push(spaces(count - len));
+  padRight(length, ...spans) {
+    const span = this._span({}, ...spans);
+    if (length > span.length) {
+      return this._span({}, ...spans, spaces(length - span.length));
     }
     return span;
   }
 
-  format(formatter) {
-    if (Array.isArray(formatter)) formatter = { content: formatter };
-    let spans = this.implicit(formatter.content);
-
-    const backgroundColor = formatter.bgColor || formatter.backgroundColor;
-    if (backgroundColor) spans = [ this.backgroundColor(backgroundColor, ...spans) ];
-    if (formatter.color) spans = [ this.color(formatter.color, ...spans) ];
-    if (formatter.padLeft) spans = [ this.padLeft(formatter.padLeft, ...spans) ];
-    if (formatter.padRight) spans = [ this.padRight(formatter.padRight, ...spans) ];
-    return this.build(...spans);
-  }
-
-  implicit(spans) {
-    if (!Array.isArray(spans)) spans = [ spans ];
-    return spans.map(span => {
-      if (span === undefined) return "";
-      if (typeof span == "object" && !(span instanceof Span)) return this.format(span);
-      if (typeof span != "object") return span.toString();
+  format(formatters, ...spans) {
+    if (!Array.isArray(formatters)) formatters = [ formatters ];
+    const formattedSpans = formatters.map((formatter, i) => {
+      let span = spans[i];
+      if (Array.isArray(span)) span = this.paint(...span);
+      if (formatter.color) span = this.color(formatter.color, span);
+      if (formatter.backgroundColor) span = this.backgroundColor(formatter.backgroundColor, span);
+      if (formatter.underline) span = this.underline(span);
+      if (formatter.padLeft) span = this.padLeft(formatter.padLeft, span);
+      if (formatter.padRight) span = this.padRight(formatter.padRight, span);
       return span;
     });
-  }
-
-  build(...spans) {
-    return spans.length == 1 ? spans[0] : new Span(null, spans, this._useColor);
+    return this._span({}, ...formattedSpans);
   }
 }
 
@@ -131,43 +138,5 @@ function spaces(n) {
   return (n <= 10) ? TEN_SPACES.slice(0, n) : TEN_SPACES + spaces(n - 10);
 }
 
-class Span {
-  constructor(color, spans, _useColor) {
-    this.color = color;
-    this.spans = spans;
-    this._useColor = _useColor;
-  }
-
-  get length() {
-    return this.spans.map(s => s.length).reduce((a, b) => a + b);
-  }
-
-  toString() {
-    let escOn = "", escOff = "";
-    if (this.color && this._useColor) {
-      switch (this.color) {
-        case "underline":
-          escOn = "\u001b[4m";
-          escOff = "\u001b[24m";
-          break;
-        default:
-          let colorName = this.color;
-          const match = this.color.match(/^bg:(.*)$/);
-          if (match) {
-            colorName = match[1];
-            const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
-            escOn = (c < 8) ? `\u001b[4${c}m` : `\u001b[48;5;${c}m`;
-            escOff = `\u001b[49m`;
-          } else {
-            const c = antsy.get_color(STYLES[colorName] ? STYLES[colorName] : colorName);
-            escOn = (c < 8) ? `\u001b[3${c}m` : `\u001b[38;5;${c}m`;
-            escOff = `\u001b[39m`;
-          }
-          break;
-      }
-    }
-    return escOn + this.spans.map(span => span.toString()).join(escOn) + escOff;
-  }
-}
-
-export const clicolor = () => new CliColor();
+const clicolor = options => new CliColor(options);
+export default clicolor;

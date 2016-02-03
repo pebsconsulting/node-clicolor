@@ -1,6 +1,6 @@
 "use strict";
 
-import { clicolor } from "../../lib/clicolor";
+import clicolor from "../../lib/clicolor";
 import { roundToPrecision } from "../../lib/magnitude";
 import StatusUpdater from "../../lib/status";
 
@@ -8,19 +8,17 @@ import "should";
 import "source-map-support/register";
 
 describe("clicolor", () => {
-  it("spans", () => {
-    const cli = clicolor();
-    cli.useColor(true);
-    cli.color("green", "kermit").toString().should.eql("\u001b[32mkermit\u001b[39m");
-    cli.paint("it's so ", cli.color("error", "easy"), "!").toString().should.eql(
-      "it's so \u001b[38;5;160measy\u001b[39m!"
-    );
-
-    cli.useColor(false);
-    cli.color("green", "kermit").toString().should.eql("kermit");
-    cli.paint("it's so ", cli.color("error", "easy"), "!").toString().should.eql(
-      "it's so easy!"
-    );
+  it("color styles", () => {
+    const cli = clicolor({
+      useColor: true,
+      styles: {
+        crazy: "4d4",
+        error: "fdd"
+      }
+    });
+    cli.color("crazy", "hi").toString().should.eql("\u001b[38;5;77mhi\u001b[39m");
+    cli.color("error", "hi").toString().should.eql("\u001b[38;5;224mhi\u001b[39m");
+    cli.color("dim", "hi").toString().should.eql("\u001b[38;5;102mhi\u001b[39m");
   });
 
   it("roundToPrecision", () => {
@@ -93,29 +91,48 @@ describe("clicolor", () => {
     );
   });
 
+  it("underline", () => {
+    const cli = clicolor();
+    cli.underline("hi").toString().should.eql("\u001b[4mhi\u001b[24m");
+    cli.underline("hi", "there").toString().should.eql("\u001b[4mhithere\u001b[24m");
+  });
+
+  it("nested spans", () => {
+    const cli = clicolor();
+    const inner = cli.color("blue", "blueness", cli.underline("time"));
+    const inner2 = cli.backgroundColor("gray", inner, cli.underline("!"));
+    cli.backgroundColor("red", "what? ", inner2, " ok!").toString().should.eql(
+      "\u001b[48;5;9mwhat? " +
+      "\u001b[48;5;8m\u001b[38;5;12mblueness\u001b[4mtime\u001b[39m!" +
+      "\u001b[48;5;9m\u001b[24m ok!\u001b[49m"
+    );
+  });
+
   it("format", () => {
     const cli = clicolor();
-    cli.format({ color: "blue", content: "green" }).toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
-    cli.format({ bgColor: "red", padLeft: 10, content: "green" }).toString().should.eql(
+
+    cli.format({ color: "blue" }, "green").toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
+    cli.format({ backgroundColor: "red", padLeft: 10 }, "green").toString().should.eql(
       "     \u001b[48;5;9mgreen\u001b[49m"
     );
     cli.format([
-      { color: "brown", padRight: 10, content: "wut?" },
-      { color: "orange", content: "ok" }
-    ]).toString().should.eql("\u001b[38;5;124mwut?\u001b[39m      \u001b[38;5;214mok\u001b[39m");
-  });
+      { color: "brown", padRight: 10 },
+      { color: "orange" }
+    ], "wut?", "ok").toString().should.eql("\u001b[38;5;124mwut?\u001b[39m      \u001b[38;5;214mok\u001b[39m");
+    cli.format([
+      { color: "yellow", backgroundColor: "gray", padLeft: 15 },
+      { backgroundColor: "dim" }
+    ], "things are", " crazy").toString().should.eql(
+      "     \u001b[48;5;8m\u001b[38;5;11mthings are\u001b[48;5;102m\u001b[39m crazy\u001b[49m"
+    );
 
-  it("implicit format", () => {
-    const cli = clicolor();
-    cli.paint({
-      color: "#005",
-      content: [
-        {
-          backgroundColor: "#700",
-          content: "what"
-        },
-        "?!"
-      ]
-    }).toString().should.eql("\u001b[38;5;17m\u001b[41mwhat\u001b[49m\u001b[38;5;17m?!\u001b[39m");
+    const myFormat = [
+      { color: "cyan" },
+      { color: "blue", padLeft: 4 },
+      { color: "cyan" }
+    ];
+    cli.format(myFormat, "Downloading launch codes (", 23, ")").toString().should.eql(
+      "\u001b[38;5;14mDownloading launch codes (\u001b[39m  \u001b[38;5;12m23\u001b[38;5;14m)\u001b[39m"
+    );
   });
 });
