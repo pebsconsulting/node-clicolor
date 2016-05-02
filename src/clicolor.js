@@ -95,7 +95,7 @@ class CliColor {
   status(...message) {
     if (!process.stdout.isTTY || this._quiet) return;
     if (message.length == 0) {
-      this._updater.clear();
+      process.stdout.write(this._updater.clear());
       return;
     }
     process.stdout.write(this._updater.update(this.paint(...message)));
