@@ -37,9 +37,14 @@ class CliColor {
   }
 
   display(...message) {
+    let target = process.stdout;
+    if (message.length > 1 && typeof message[0] == "object" && message[0].write) {
+      target = message[0];
+      message = message.slice(1);
+    }
     const clear = process.stdout.isTTY ? this._updater.clear() : "";
-    const text = (message.length == 1 ? message[0] : this.paint(...message)).toString();
-    process.stdout.write(clear + text + "\n");
+    const text = this.paint(...message).toString();
+    target.write(clear + text + "\n");
   }
 
   displayVerbose(...message) {
@@ -49,11 +54,11 @@ class CliColor {
   }
 
   displayError(...message) {
-    this.display(this.color(this.styles.error, "ERROR"), ": ", ...message);
+    this.display(process.stderr, this.color(this.styles.error, "ERROR"), ": ", ...message);
   }
 
   displayWarning(...message) {
-    this.display(this.color(this.styles.warning, "WARNING"), ": ", ...message);
+    this.display(process.stderr, this.color(this.styles.warning, "WARNING"), ": ", ...message);
   }
 
   _span(options, ...spans) {
@@ -90,7 +95,7 @@ class CliColor {
   status(...message) {
     if (!process.stdout.isTTY || this._quiet) return;
     if (message.length == 0) {
-      this._updater.clear();
+      process.stdout.write(this._updater.clear());
       return;
     }
     process.stdout.write(this._updater.update(this.paint(...message)));

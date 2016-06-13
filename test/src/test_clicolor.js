@@ -110,6 +110,7 @@ describe("clicolor", () => {
 
   it("format", () => {
     const cli = clicolor();
+
     cli.format({ color: "blue" }, "green").toString().should.eql("\u001b[38;5;12mgreen\u001b[39m");
     cli.format({ backgroundColor: "red", padLeft: 10 }, "green").toString().should.eql(
       "     \u001b[48;5;9mgreen\u001b[49m"

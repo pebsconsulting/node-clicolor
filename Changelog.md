@@ -1,3 +1,11 @@
+## 2.0.3 (2 map 2016)
+
+- fix bug where clearing a status update explicitly wouldn't actually work.
+
+## 2.0.2 (2 feb 2016)
+
+- fix bug where warnings and errors were sent to stdout instead of stderr.
+
 ## 2.0.1 (14 sep 2015)
 
 - fixed behavior when a span isn't a Span or string.
