@@ -1,4 +1,8 @@
-## 2.0.3 (2 map 2016)
+## 2.1.0 (13 jun 2016)
+
+- add isColor, isQuiet.
+
+## 2.0.3 (2 may 2016)
 
 - fix bug where clearing a status update explicitly wouldn't actually work.
 
