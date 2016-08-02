@@ -1,9 +1,8 @@
 "use strict";
 
-import Span from "../../lib/span";
+const { Span } = require("../../src");
 
-import "should";
-import "source-map-support/register";
+require("should");
 
 describe("Span", () => {
   it("spans", () => {

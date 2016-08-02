@@ -13,25 +13,22 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "antsy": "*"
+    "antsy": "^1.1.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.0.0",
-    "babel-preset-es2015-node4": "^2.0.3",
     "eslint": "^1.4.1",
-    "mocha": "*",
-    "should": "*",
-    "source-map-support": "latest"
+    "mocha": "^3.0.0",
+    "should": "^10.0.0"
   },
-  "main": "./lib/clicolor",
+  "main": "./src",
   "files": [
     "lib"
   ],
   "scripts": {
-    "build": "npm run prepublish",
+    "build": "eslint src test/src",
     "clean": "rm -rf lib test/lib",
     "distclean": "npm run clean && rm -rf node_modules",
-    "prepublish": "eslint src test/src && babel --source-maps --out-dir lib src && babel --source-maps --out-dir test/lib test/src",
-    "test": "mocha -R spec --colors test/lib"
+    "prepublish": "npm run build",
+    "test": "mocha -R spec --colors test/src"
   }
 }

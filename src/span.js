@@ -1,8 +1,8 @@
 "use strict";
 
-import antsy from "antsy";
+const antsy = require("antsy");
 
-export default class Span {
+class Span {
   /*
    * options:
    * - plaintext: true if we should avoid sending any terminal codes
@@ -117,3 +117,6 @@ function merge(...objects) {
   });
   return rv;
 }
+
+
+exports.Span = Span;

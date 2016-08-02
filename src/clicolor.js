@@ -1,8 +1,8 @@
 "use strict";
 
-import Span from "./span";
-import StatusUpdater from "./status";
-import { magnitude } from "./magnitude";
+const { Span } = require("./span");
+const { spaces, StatusUpdater } = require("./status");
+const { magnitude } = require("./magnitude");
 
 
 const DEFAULT_STYLES = {
@@ -133,10 +133,5 @@ class CliColor {
   }
 }
 
-const TEN_SPACES = "          ";
-function spaces(n) {
-  return (n <= 10) ? TEN_SPACES.slice(0, n) : TEN_SPACES + spaces(n - 10);
-}
 
-const clicolor = options => new CliColor(options);
-export default clicolor;
+exports.clicolor = options => new CliColor(options);
