@@ -36,6 +36,14 @@ class CliColor {
     this._quiet = x;
   }
 
+  isColor() {
+    return !this._plaintext;
+  }
+
+  isQuiet() {
+    return this._quiet;
+  }
+
   display(...message) {
     let target = process.stdout;
     if (message.length > 1 && typeof message[0] == "object" && message[0].write) {
