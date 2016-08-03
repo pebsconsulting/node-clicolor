@@ -22,7 +22,7 @@
   },
   "main": "./src",
   "files": [
-    "lib"
+    "src"
   ],
   "scripts": {
     "build": "eslint src test/src",
