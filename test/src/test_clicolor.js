@@ -1,11 +1,9 @@
 "use strict";
 
-import clicolor from "../../lib/clicolor";
-import { roundToPrecision } from "../../lib/magnitude";
-import StatusUpdater from "../../lib/status";
+const clicolor = require("../../src");
 
-import "should";
-import "source-map-support/register";
+require("should");
+
 
 describe("clicolor", () => {
   it("color styles", () => {
@@ -22,13 +20,13 @@ describe("clicolor", () => {
   });
 
   it("roundToPrecision", () => {
-    roundToPrecision(123, 1).should.eql(100);
-    roundToPrecision(123, 2).should.eql(120);
-    roundToPrecision(123, 3).should.eql(123);
-    roundToPrecision(123, 1, "ceil").should.eql(200);
-    roundToPrecision(123, 2, "ceil").should.eql(130);
-    roundToPrecision(123, 3, "ceil").should.eql(123);
-    roundToPrecision(0, 3).should.eql(0);
+    clicolor.roundToPrecision(123, 1).should.eql(100);
+    clicolor.roundToPrecision(123, 2).should.eql(120);
+    clicolor.roundToPrecision(123, 3).should.eql(123);
+    clicolor.roundToPrecision(123, 1, "ceil").should.eql(200);
+    clicolor.roundToPrecision(123, 2, "ceil").should.eql(130);
+    clicolor.roundToPrecision(123, 3, "ceil").should.eql(123);
+    clicolor.roundToPrecision(0, 3).should.eql(0);
   });
 
   it("toMagnitude", () => {
@@ -61,7 +59,7 @@ describe("clicolor", () => {
   });
 
   it("status line", () => {
-    const s = new StatusUpdater({ width: 16, frequency: 100 });
+    const s = new clicolor.StatusUpdater({ width: 16, frequency: 100 });
     s.update("porky").should.eql("\r               \rporky");
     s.update("porky").should.eql("");
     s.update("wut?").should.eql("");

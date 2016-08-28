@@ -6,9 +6,8 @@ Display pretty colored text and single-line status updates in your CLI tool.
 Example:
 
 ```javascript
-import clicolor from "clicolor";
+const clicolor = require("clicolor");
 const cli = clicolor();
-// or: var cli = require("clicolor")();
 
 cli.display(cli.color("purple", "ATTENTION"), ": ", cli.color("green", "I am feeling green today."));
 
@@ -23,16 +22,16 @@ cli.status("Building space station ", cli.format({ color: "#4d4" }, "(24%)"), " 
 A `clicolor` object tracks quiet mode, whether we're using color codes, and the state of any single-line status display.
 
 - `clicolor(options)`: options are:
-  - `width`: Screen width. Defaults to the current terminal width, if possible, or 80 otherwise.
-  - `frequency`: Minimum delay (in milliseconds) between updates to a single-line status, to avoid flooding a terminal. Default is 100.
-  - `useColor`: True or false: Should we emit color codes? If false, only plain text is emitted. By default, clicolor will use "true" if it detects a TTY, or "false" if not.
-  - `quiet`: True or false: If false, "verbose" and single-line status updates will be displayed. If true, they will be squelched.
-  - `styles`: Map of additional color names to use when resolving colors (described below).
+    - `width`: Screen width. Defaults to the current terminal width, if possible, or 80 otherwise.
+    - `frequency`: Minimum delay (in milliseconds) between updates to a single-line status, to avoid flooding a terminal. Default is 100.
+    - `useColor`: True or false: Should we emit color codes? If false, only plain text is emitted. By default, clicolor will use "true" if it detects a TTY, or "false" if not.
+    - `quiet`: True or false: If false, "verbose" and single-line status updates will be displayed. If true, they will be squelched.
+    - `styles`: Map of additional color names to use when resolving colors (described below).
 
 These methods can be used to configure modes after constructing the object:
 
-- `useColor(boolean)`
-- `quiet(boolean)`
+  - `useColor(boolean)`
+  - `quiet(boolean)`
 
 ## Color spans
 

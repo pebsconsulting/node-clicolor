@@ -1,18 +1,13 @@
 "use strict";
 
-const SPACES = "                "; // 16
-
-export default class StatusUpdater {
+class StatusUpdater {
   constructor(options = {}) {
     this.frequency = options.frequency || 100;
     this.width = options.width || 80;
     this.lastUpdate = 0;
     this.currentMessage = null;
     this.timer = null;
-
-    this.blankLine = SPACES;
-    while (this.blankLine.length < this.width - 1) this.blankLine += this.blankLine;
-    this.blankLine = this.blankLine.slice(0, this.width - 1);
+    this.blankLine = spaces(this.width - 1);
   }
 
   _render(message) {
@@ -47,3 +42,16 @@ export default class StatusUpdater {
     return this._render("");
   }
 }
+
+//                 -+-*-+-|-+-*-+-|
+const SPACES_16 = "                "; // 16
+
+function spaces(n) {
+  let rv = SPACES_16;
+  while (rv.length < n) rv += SPACES_16;
+  return rv.slice(0, n);
+}
+
+
+exports.spaces = spaces;
+exports.StatusUpdater = StatusUpdater;

@@ -2,7 +2,7 @@
 
 const HUMAN_LABELS = " KMGTPE";
 
-export function magnitude(number, base = 1000.0) {
+function magnitude(number, base = 1000.0) {
   let index = HUMAN_LABELS.indexOf(" ");
   number = Math.abs(number);
   const originalNumber = number;
@@ -23,8 +23,12 @@ export function magnitude(number, base = 1000.0) {
   return number + label;
 }
 
-export function roundToPrecision(number, digits, op = "round") {
+function roundToPrecision(number, digits, op = "round") {
   if (number == 0) return 0;
   const scale = digits - Math.floor(Math.log(number) / Math.log(10)) - 1;
   return Math[op](number * Math.pow(10, scale)) * Math.pow(10, -scale);
 }
+
+
+exports.magnitude = magnitude;
+exports.roundToPrecision = roundToPrecision;
