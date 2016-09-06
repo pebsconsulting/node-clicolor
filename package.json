@@ -1,10 +1,6 @@
 {
   "name": "clicolor",
-<<<<<<< HEAD
-  "version": "2.1.0",
-=======
   "version": "2.2.2",
->>>>>>> 65312bfd703c40c7113d713955bb9f42588d90d5
   "description": "simple functions for using pretty colors in your CLI app",
   "keywords": [
     "cli"
@@ -20,19 +16,24 @@
     "antsy": "^1.1.1"
   },
   "devDependencies": {
-    "eslint": "^1.4.1",
+    "@types/mocha": "^2.2.31",
+    "@types/node": "^6.0.38",
+    "@types/should": "^8.1.29",
     "mocha": "^3.0.0",
-    "should": "^10.0.0"
+    "should": "^10.0.0",
+    "source-map-support": "^0.4.2",
+    "typescript": "^2.0.0"
   },
-  "main": "./src",
+  "main": "./built/index.js",
   "files": [
-    "src"
+    "built",
+    "declarations"
   ],
   "scripts": {
-    "build": "eslint src test/src",
-    "clean": "rm -rf lib test/lib",
-    "distclean": "npm run clean && rm -rf node_modules",
+    "build": "tsc",
+    "clean": "rm -rf built declarations",
+    "distclean": "npm run clean && rm -rf node_modules npm-debug.log",
     "prepublish": "npm run build",
-    "test": "mocha -R spec --colors test/src"
+    "test": "npm run build && mocha -R spec --colors built/test/src"
   }
 }

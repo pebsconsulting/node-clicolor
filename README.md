@@ -68,7 +68,7 @@ makes the whole string ("this is all green") green.
 
 - `padRight(length, ...spans)`: Pad the combined string/span with spaces on the right, until it reaches the desired length.
 
-- `paint(...spans)`: Combine multiple strings/spans into one.
+- `merge(...spans)`: Combine multiple strings/spans into one.
 
 ## Format
 

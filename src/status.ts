@@ -1,7 +1,17 @@
-"use strict";
+export type Options = {
+  frequency?: number,
+  width?: number
+}
 
-class StatusUpdater {
-  constructor(options = {}) {
+export class StatusUpdater {
+  private frequency: number;
+  private width: number;
+  public lastUpdate: number;
+  private currentMessage: string | null;
+  private timer: NodeJS.Timer;
+  private blankLine: string;
+
+  constructor(options: Options = {}) {
     this.frequency = options.frequency || 100;
     this.width = options.width || 80;
     this.lastUpdate = 0;
@@ -10,12 +20,12 @@ class StatusUpdater {
     this.blankLine = spaces(this.width - 1);
   }
 
-  _render(message) {
+  private _render(message: string): string {
     const s = message.slice(0, this.width - 1).toString();
     return "\r" + this.blankLine + "\r" + s;
   }
 
-  update(message) {
+  update(message?: string): string {
     if (message == null) message = this.currentMessage;
     if (message == null) return "";
     this.currentMessage = message;
@@ -34,7 +44,7 @@ class StatusUpdater {
     }
   }
 
-  clear() {
+  clear(): string {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
     if (this.currentMessage == null) return "";
@@ -46,12 +56,8 @@ class StatusUpdater {
 //                 -+-*-+-|-+-*-+-|
 const SPACES_16 = "                "; // 16
 
-function spaces(n) {
+export function spaces(n: number): string {
   let rv = SPACES_16;
   while (rv.length < n) rv += SPACES_16;
   return rv.slice(0, n);
 }
-
-
-exports.spaces = spaces;
-exports.StatusUpdater = StatusUpdater;
