@@ -13,7 +13,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "antsy": "^1.1.1"
+    "antsy": "^1.3.1"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.31",
