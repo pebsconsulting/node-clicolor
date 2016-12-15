@@ -46,7 +46,7 @@ export class CliColor {
 
     this.styles = new Map();
     for (const k in DEFAULT_STYLES) this.styles.set(k, DEFAULT_STYLES[k]);
-    for (const k in (options.styles || {})) this.styles.set(k, options.styles[k]);
+    if (options.styles) for (const k in options.styles) this.styles.set(k, options.styles[k]);
   }
 
   useColor(x: boolean): void {
@@ -80,11 +80,13 @@ export class CliColor {
   }
 
   displayError(...message: Spans): void {
-    this.displayTo(process.stderr, this.color(this.styles.get("error"), "ERROR"), ": ", ...message);
+    const color = this.styles.get("error") || DEFAULT_STYLES.error;
+    this.displayTo(process.stderr, this.color(color, "ERROR"), ": ", ...message);
   }
 
   displayWarning(...message: Spans): void {
-    this.displayTo(process.stderr, this.color(this.styles.get("warning"), "WARNING"), ": ", ...message);
+    const color = this.styles.get("warning") || DEFAULT_STYLES.warning;
+    this.displayTo(process.stderr, this.color(color, "WARNING"), ": ", ...message);
   }
 
   merge(...spans: Spans): Span {
@@ -92,12 +94,12 @@ export class CliColor {
   }
 
   color(colorName: string, ...spans: Spans): Span {
-    if (this.styles.has(colorName)) colorName = this.styles.get(colorName);
+    colorName = this.styles.get(colorName) || colorName;
     return span(Pen.make({ color: colorName }), ...spans);
   }
 
   backgroundColor(colorName: string, ...spans: Spans): Span {
-    if (this.styles.has(colorName)) colorName = this.styles.get(colorName);
+    colorName = this.styles.get(colorName) || colorName;
     return span(Pen.make({ backgroundColor: colorName }), ...spans);
   }
 
@@ -138,7 +140,8 @@ export class CliColor {
     const penmap = (descriptors instanceof Map) ? descriptors : Pen.format(descriptors);
     const stack: { tag: string, index: number, buffer: Spans }[] = [];
     let lastIndex = 0;
-    stack.push({ tag: null, index: 0, buffer: [] });
+    const deadItem = { tag: "", index: 0, buffer: [] };
+    stack.push(deadItem);
 
     let m = TAG.exec(s);
     while (m != null) {
@@ -148,13 +151,13 @@ export class CliColor {
 
         if (tag[0] == "/") {
           // end tag
-          const start = stack.pop();
-          if (start.tag == null) throw new Error(`Closed tag with no open tag (${tag} at ${index})`);
+          const start = stack.pop() || deadItem;
+          if (start.tag == "") throw new Error(`Closed tag with no open tag (${tag} at ${index})`);
           if (start.tag != tag.slice(1)) {
             throw new Error(`Mismatched tags: ${start.tag} at ${start.index} vs ${tag} at ${index}`);
           }
           if (!penmap.has(start.tag)) throw new Error(`Unknown tag descriptor: ${start.tag} at ${start.index}`);
-          const pen = penmap.get(start.tag);
+          const pen = penmap.get(start.tag) || EMPTY_PEN;
           stack[stack.length - 1].buffer.push(span(pen, ...start.buffer));
         } else {
           // start tag
@@ -168,7 +171,7 @@ export class CliColor {
     }
 
     if (stack.length != 1) throw new Error(`Missing end tag for ${stack[stack.length - 1].tag}`);
-    const start = stack.pop();
+    const start = stack.pop() || deadItem;
     start.buffer.push(s.slice(lastIndex));
     return span(EMPTY_PEN, ...start.buffer);
   }

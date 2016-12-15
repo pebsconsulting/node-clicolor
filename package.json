@@ -30,10 +30,10 @@
     "declarations"
   ],
   "scripts": {
-    "build": "tsc -d --declarationDir built/",
-    "clean": "rm -rf built",
+    "build": "tsc",
+    "clean": "rm -rf lib",
     "distclean": "npm run clean && rm -rf node_modules npm-debug.log",
     "prepublish": "npm run build",
-    "test": "npm run build && mocha -R spec --colors built/test/src"
+    "test": "npm run build && mocha -R spec --colors lib/test"
   }
 }

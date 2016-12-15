@@ -13,19 +13,19 @@
     "allowUnreachableCode": false,
     "removeComments": true,
     "noLib": false,
-    "rootDir": ".",
-    "outDir": "built/",
+    "rootDir": "src/",
+    "outDir": "lib/",
+    "declaration": true,
+    "declarationDir": "lib/",
     "preserveConstEnums": true,
     "sourceMap": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "strictNullChecks": true
   },
   "filesGlob": [
-    "!node_modules",
-    "node_modules/@types/**/*.d.ts",
-    "src/**/*.ts",
-    "test/src/**/*.ts"
+    "src/**/*.ts"
   ],
-  "compileOnSave": false,
+  "compileOnSave": true,
   "buildOnSave": false,
   "atom": {
     "rewriteTsconfig": false

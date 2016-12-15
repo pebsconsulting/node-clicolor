@@ -1,6 +1,6 @@
 "use strict";
 
-import { clicolor, StatusUpdater } from "../../src";
+import { clicolor, StatusUpdater } from "..";
 
 import "should";
 import "source-map-support/register";

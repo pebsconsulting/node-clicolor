@@ -1,7 +1,7 @@
 "use strict";
 
-import { span } from "../../src/span";
-import { Pen } from "../../src/pen";
+import { span } from "../span";
+import { Pen } from "../pen";
 
 import "should";
 import "source-map-support/register";

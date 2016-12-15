@@ -1,6 +1,6 @@
 "use strict";
 
-import { EMPTY_PEN, Pen } from "../../src/pen";
+import { EMPTY_PEN, Pen } from "../pen";
 
 import "should";
 import "source-map-support/register";
@@ -49,7 +49,7 @@ describe("Pen", () => {
     });
 
     Array.from(f.keys()).sort().should.eql([ "error", "timestamp" ]);
-    f.get("error").toString().should.eql("Pen(color=red, bold)");
-    f.get("timestamp").toString().should.eql("Pen(color=cyan)");
+    (f.get("error") || EMPTY_PEN).toString().should.eql("Pen(color=red, bold)");
+    (f.get("timestamp") || EMPTY_PEN).toString().should.eql("Pen(color=cyan)");
   });
 });
