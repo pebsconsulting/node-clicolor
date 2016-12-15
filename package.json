@@ -1,6 +1,6 @@
 {
   "name": "clicolor",
-  "version": "2.2.2",
+  "version": "3.0.0",
   "description": "simple functions for using pretty colors in your CLI app",
   "keywords": [
     "cli"
@@ -26,8 +26,7 @@
   },
   "main": "./built/index.js",
   "files": [
-    "built",
-    "declarations"
+    "lib"
   ],
   "scripts": {
     "build": "tsc",

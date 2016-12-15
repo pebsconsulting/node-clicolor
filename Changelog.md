@@ -1,3 +1,7 @@
+## 3.0.0 (15 dec 2016)
+
+- rewrote in typescript and changed some of the API.
+
 ## 2.1.0 (13 jun 2016)
 
 - add isColor, isQuiet.
