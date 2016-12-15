@@ -1,6 +1,6 @@
 {
   "name": "clicolor",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "simple functions for using pretty colors in your CLI app",
   "keywords": [
     "cli"
