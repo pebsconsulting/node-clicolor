@@ -24,7 +24,8 @@
     "source-map-support": "^0.4.2",
     "typescript": "^2.0.0"
   },
-  "main": "./built/index.js",
+  "main": "./lib",
+  "types": "./lib",
   "files": [
     "lib"
   ],
