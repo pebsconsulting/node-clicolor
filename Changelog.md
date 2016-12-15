@@ -35,7 +35,3 @@
 ## 1.0.1 (25 dec 2014)
 
 - fixed install bug by marking a script as prepublish, not preinstall.
-
-   '1.2.0': '2015-09-03T22:08:23.829Z',
-   '2.0.0': '2015-09-14T06:55:54.453Z',
-   '2.0.1': '2015-09-14T22:07:47.610Z'
