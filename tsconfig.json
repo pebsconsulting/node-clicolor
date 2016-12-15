@@ -7,8 +7,6 @@
     "jsx": "react",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    /*"declaration": true,*/
-    /*"declarationDir": "declarations/",*/
     "noImplicitAny": true,
     "noImplicitUseStrict": false,
     "noImplicitReturns": true,
@@ -22,9 +20,10 @@
     "suppressImplicitAnyIndexErrors": true
   },
   "filesGlob": [
-    "built/**",
-    "node_modules/@typings/**",
-    "!node_modules"
+    "!node_modules",
+    "node_modules/@types/**/*.d.ts",
+    "src/**/*.ts",
+    "test/src/**/*.ts"
   ],
   "compileOnSave": false,
   "buildOnSave": false,

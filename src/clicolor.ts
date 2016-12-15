@@ -1,7 +1,7 @@
 "use strict";
 
 import { EMPTY_PEN, Format, Pen, PenDescription } from "./pen";
-import { Span, span } from "./span";
+import { Span, span, Spans } from "./span";
 import { spaces, StatusUpdater } from "./status";
 
 const TAG = /<([^>]+)>/g;
@@ -21,7 +21,7 @@ export type Options = {
   styles?: { [key: string]: string },
 };
 
-class CliColor {
+export class CliColor {
   private _useColor: boolean;
   private _onTTY: boolean;
   private _quiet: boolean;
@@ -76,9 +76,7 @@ class CliColor {
   }
 
   displayVerbose(...message: Spans): void {
-    const clear = this._onTTY ? this._updater.clear() : "";
-    const text = (message.length == 1 ? message[0] : this.merge(...message)).toString();
-    if (!this._quiet) process.stdout.write(clear + text + "\n");
+    if (!this._quiet) this.displayTo(process.stdout, ...message);
   }
 
   displayError(...message: Spans): void {
@@ -177,6 +175,6 @@ class CliColor {
 }
 
 
-export function clicolor(options: Options = {}) {
+export function clicolor(options: Options = {}): CliColor {
   return new CliColor(options);
 }
