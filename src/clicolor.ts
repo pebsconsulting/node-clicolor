@@ -67,7 +67,7 @@ export class CliColor {
 
   displayTo(stream: NodeJS.WritableStream, ...message: Spans): void {
     const clear = this._onTTY ? this._updater.clear() : "";
-    const text = this.merge(...message).toString();
+    const text = this.merge(...message).toString(this._useColor);
     stream.write(clear + text + "\n");
   }
 
